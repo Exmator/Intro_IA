@@ -2,9 +2,11 @@ import ast
 
 class Matriz:
     def __init__(self, archivo):
-        self.valores = []
+        # Valores iniciales
+        self.valores = [] # Matriz del laberinto
         self.leer_archivo(archivo)
 
+    # lee el archivo y construye la matriz
     def leer_archivo(self, archivo):
         with open(archivo, "r") as f:
             for linea in f:
@@ -12,10 +14,7 @@ class Matriz:
                 fila = ast.literal_eval(linea.strip())
                 self.valores.append(fila)
 
-    def mostrar(self):
-        for fila in self.valores:
-            print(fila)
-
+    # Retorna la cantidad de filas y columnas
     def dimensiones(self):
         filas = len(self.valores)
         columnas = len(self.valores[0]) if filas > 0 else 0

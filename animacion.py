@@ -5,7 +5,7 @@ from matriz import Matriz
 from grafo import Grafo
 
 # Direccion archivo laberinto
-archivo_laberinto = "matriz.txt"
+archivo_laberinto = "matrizPrueba.txt"
 
 # Colores
 BLANCO = (255, 255, 255)
@@ -19,7 +19,7 @@ MORADO = (128, 0, 128)
 # Tamaño de celda
 TAM_CELDA = 10
 
-# Laberinto (puedes cambiarlo por cualquier matriz válida)
+# Laberinto
 matriz = Matriz(archivo_laberinto)
 grafo = Grafo(matriz)
 
@@ -55,7 +55,7 @@ def animar_camino(screen, camino, color, delay=0.5):
         time.sleep(delay)
 
 # ----------------------------
-# Ejemplo de caminos obtenidos
+# Definir los caminos encontrados
 # ----------------------------
 camino_dfs = grafo.camino_por_profundidad
 camino_bfs = grafo.camino_por_anchura
