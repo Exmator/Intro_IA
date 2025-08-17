@@ -1,7 +1,5 @@
 from matriz import Matriz
 
-archivo_laberinto = "matrizPrueba.txt"
-
 class Grafo:
     def __init__(self, matriz: Matriz):
         self.matriz = matriz.valores
@@ -165,14 +163,3 @@ class Grafo:
         print("Heurística (distancia Manhattan al objetivo):")
         for nodo, heuristica in self.lista_heuristica.items():
             print(f"  {nodo}: {heuristica}")
-
-
-# Ejemplo de uso
-if __name__ == "__main__":
-    matriz = Matriz(archivo_laberinto)
-    grafo = Grafo(matriz)
-    grafo.mostrar()
-
-    print("\nCamino por DFS:", grafo.camino_por_profundidad)
-    print("Camino por BFS:", grafo.camino_por_anchura)
-    print("Camino por A*:", grafo.camino_por_a_estrella)
