@@ -73,6 +73,14 @@ def main():
     dibujar_laberinto(screen, matriz)
     pygame.display.flip()
 
+    # Imprimir la lista de nodos recorridos para cada algoritmo
+    print("DFS:")
+    print(camino_dfs)
+    print("BFS:")
+    print(camino_bfs)
+    print("A*:")
+    print(camino_astar)
+
     # Espera 1 segundo antes de empezar
     time.sleep(1)
 
