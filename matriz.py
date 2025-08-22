@@ -10,6 +10,8 @@ class Matriz:
     def leer_archivo(self, archivo):
         with open(archivo, "r") as f:
             for linea in f:
+                if not linea.startswith("["):
+                    continue
                 # Convertir la línea en lista de enteros
                 fila = ast.literal_eval(linea.strip())
                 self.valores.append(fila)
