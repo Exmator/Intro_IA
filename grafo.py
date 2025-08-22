@@ -1,10 +1,5 @@
 from matriz import Matriz
 
-class nodo:
-    def __init__(self,nodo,peso):
-        self.nodo = nodo
-        self.peso = peso
-
 class Grafo:
     def __init__(self, matriz: Matriz):
         # Definicion de atributos iniciales
@@ -18,7 +13,7 @@ class Grafo:
         self.camino_por_a_estrella = []
 
         # Se construye el grafo y se calcula la heurística a la coordenada final
-        self.construir_grafo_saltando()
+        self.construir_grafo()
         self.funcion_heuristica(self.coordenadaFinal)
 
         # Determinar los caminos de cada algoritmo
@@ -35,84 +30,88 @@ class Grafo:
                 elif self.matriz[i][j] == 3:
                     self.coordenadaFinal = (i, j)
 
-    def construir_grafo_saltando(self):
-        self.encontrar_coordenadas_inicial_final()
-        lista_coordenadas_no_visitadas_total = [self.coordenadaInicial]
-        lista_coordenadas_visitadas = []
-
-        while lista_coordenadas_no_visitadas_total:
-            coordenada_actual_total = lista_coordenadas_no_visitadas_total.pop(0)
-            lista_coordenadas_no_visitadas = []
-            peso = 1
-
-            # Se crea el grafo realizando una búsqueda en anchura desde el punto inicial 
-            # hasta recorrer todo lo posible del laberinto
-            while lista_coordenadas_no_visitadas:
-                coordenada_actual = lista_coordenadas_no_visitadas.pop(0)
-                lista_coordenadas_visitadas.append(coordenada_actual)
-                lista_vecinos = []
-
-                # Expandir en las cuatro direcciones (Arriba, Abajo, Izquierda, Derecha)
-                for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-                
-                    nueva_coordenada = (coordenada_actual[0] + dx, coordenada_actual[1] + dy)
-                    
-                    # Si no es una coordenada valida (Esta fuera del mapa o es un muro) no guardar
-                    if not self.es_coordenada_valida(nueva_coordenada) or nueva_coordenada in lista_coordenadas_visitadas:
-                        continue
-
-                    lista_vecinos.append(nueva_coordenada)
-                
-                if len(lista_vecinos) == 1:
-                    peso += 1
-                    lista_coordenadas_no_visitadas.append(lista_vecinos[0])
-                else:
-                    # Inicializar si no existe la coordenada en el grafo
-                    if coordenada_actual_total not in self.grafo:
-                        self.grafo[coordenada_actual_total] = []
-
-                    self.grafo[coordenada_actual_total].append(nodo(coordenada_actual,peso))
-                    peso = 1
-
     def construir_grafo(self):
         self.encontrar_coordenadas_inicial_final()
-        lista_coordenadas_no_visitadas = [self.coordenadaInicial]
-        lista_coordenadas_visitadas = []
+        self.grafo = {}
 
-        # Se crea el grafo realizando una búsqueda en anchura desde el punto inicial 
-        # hasta recorrer todo lo posible del laberinto
-        while lista_coordenadas_no_visitadas:
-            coordenada_actual = lista_coordenadas_no_visitadas.pop(0)
-            lista_coordenadas_visitadas.append(coordenada_actual)
+        # Identificar si una coordenada es "nodo" del grafo
+        def es_nodo(coord):
+            # Si es la coordenada inicial o final, es un nodo
+            if coord == self.coordenadaInicial or coord == self.coordenadaFinal:
+                return True
+            # Calcula los vecinos de la coordenada
+            vecinos = [
+                (coord[0] + dx, coord[1] + dy)
+                for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]
+                if self.es_coordenada_valida((coord[0] + dx, coord[1] + dy))
+            ]
+            # Si la cantidad de vecinos es 1, es un extremo; si es >=3, es una bifurcación
+            return len(vecinos) != 2
 
-            # Expandir en las cuatro direcciones (Arriba, Abajo, Izquierda, Derecha)
+        visitados = set()
+
+        # Desde un nodo, explorar cada dirección hasta encontrar otro nodo o final del pasillo
+        def explorar_desde_nodo(nodo):
             for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-                nueva_coordenada = (coordenada_actual[0] + dx, coordenada_actual[1] + dy)
-                
-                # Si no es una coordenada valida (Esta fuera del mapa o es un muro) no guardar
-                if not self.es_coordenada_valida(nueva_coordenada):
+                siguiente = (nodo[0] + dx, nodo[1] + dy)
+
+                if not self.es_coordenada_valida(siguiente):
+                    continue
+                if siguiente in visitados:
                     continue
 
-                # Inicializar si no existe la coordenada en el grafo
-                if coordenada_actual not in self.grafo:
-                    self.grafo[coordenada_actual] = []
+                # Recorrer el pasillo
+                peso = 1 # Peso inicial de la arista
+                actual = siguiente
+                anterior = nodo
 
-                # Guardar la coordenada
-                self.grafo[coordenada_actual].append(nueva_coordenada)
+                # Mientras no lleguemos a un nodo
+                while not es_nodo(actual):
+                    visitados.add(actual)
 
-                # Si la nueva coordenada no ha sido visitada, agregarla a la lista
-                if nueva_coordenada not in lista_coordenadas_visitadas and nueva_coordenada not in lista_coordenadas_no_visitadas:
-                    lista_coordenadas_no_visitadas.append(nueva_coordenada)
+                    # Calcular vecinos
+                    vecinos = [
+                        (actual[0] + mx, actual[1] + my)
+                        for mx, my in [(-1,0),(1,0),(0,-1),(0,1)]
+                        if self.es_coordenada_valida((actual[0] + mx, actual[1] + my)) and (actual[0] + mx, actual[1] + my) != anterior
+                    ]
+
+                    # Si no tiene vecinos, es un nodo extremo
+                    if not vecinos:  
+                        break
+
+                    anterior = actual
+                    actual = vecinos[0]
+                    peso += 1
+
+                # Se encontró un nodo destino
+                destino = actual
+                if nodo not in self.grafo:
+                    self.grafo[nodo] = []
+                if destino not in self.grafo:
+                    self.grafo[destino] = []
+
+                # Guardar arista en ambos sentidos
+                self.grafo[nodo].append((destino, peso))
+                self.grafo[destino].append((nodo, peso))
+
+        # Buscar todos los nodos del laberinto
+        for i in range(len(self.matriz)):
+            for j in range(len(self.matriz[0])):
+                coord = (i, j)
+                if self.es_coordenada_valida(coord) and es_nodo(coord):
+                    if coord not in visitados:
+                        explorar_desde_nodo(coord)
 
     def es_coordenada_valida(self, coordenada):
         x, y = coordenada
         return (0 <= x < len(self.matriz) and
                 0 <= y < len(self.matriz[0]) and
                 self.matriz[x][y] != 1)  # 1 representa un obstáculo
-    
-    def obtener_vecinos(self, v):
-        return self.grafo[v] if v in self.grafo else []
-    
+
+    def obtener_vecinos(self, nodo):
+        return [destino for destino, peso in self.grafo[nodo]]
+
     def distancia_manhattan(self, a, b):
         """Calcula la distancia de Manhattan entre dos coordenadas (x1, y1) y (x2, y2)."""
         return abs(a[0] - b[0]) + abs(a[1] - b[1])

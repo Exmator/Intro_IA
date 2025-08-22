@@ -18,7 +18,7 @@ MORADO = (128, 0, 128)
 
 # Tamaño de celda
 TAM_CELDA = 5
-DELAY = 0.01  # Delay para la animación
+DELAY = 0.5  # Delay para la animación
 
 # Laberinto
 matriz = Matriz(archivo_laberinto)
@@ -81,6 +81,8 @@ def main():
     print(camino_bfs)
     print("A*:")
     print(camino_astar)
+    print("Coordenada Inicial:", grafo.coordenadaInicial)
+    print("Coordenada Final:", grafo.coordenadaFinal)
 
     # Espera 1 segundo antes de empezar
     time.sleep(1)
